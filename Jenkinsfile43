@@ -26,16 +26,16 @@ pipeline{
       steps{
         sh'''
           cd vote
-          docker build -t 584716546011.dkr.ecr.us-east-1.amazonaws.com/demo-c43:v${BUILD_NUMBER} .
-          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 584716546011.dkr.ecr.us-east-1.amazonaws.com
-          docker push 584716546011.dkr.ecr.us-east-1.amazonaws.com/demo-c43:v${BUILD_NUMBER}
+          docker build -t 305989331093.dkr.ecr.us-east-1.amazonaws.com/vote:v${BUILD_NUMBER} .
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 305989331093.dkr.ecr.us-east-1.amazonaws.com
+          docker push 305989331093.dkr.ecr.us-east-1.amazonaws.com/vote:v${BUILD_NUMBER}
         '''
       }
     }
     stage("Docker Deploy"){
       steps{
         sh'''
-          ECR_IMAGE=584716546011.dkr.ecr.us-east-1.amazonaws.com/demo-c43:v${BUILD_NUMBER}
+          ECR_IMAGE=305989331093.dkr.ecr.us-east-1.amazonaws.com/vote:v${BUILD_NUMBER}
           TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition "$TASK_FAMILY" --region "$AWS_DEFAULT_REGION")
           NEW_TASK_DEFINTIION=$(echo $TASK_DEFINITION | jq --arg IMAGE "$ECR_IMAGE" '.taskDefinition | .containerDefinitions[0].image = $IMAGE | del(.taskDefinitionArn) | del(.revision) | del(.status) | del(.requiresAttributes) | del(.compatibilities) | del(.registeredAt) | del(.registeredBy)')
           NEW_TASK_INFO=$(aws ecs register-task-definition --region "$AWS_DEFAULT_REGION" --cli-input-json "$NEW_TASK_DEFINTIION")
